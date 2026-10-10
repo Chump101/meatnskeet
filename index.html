@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <title>6th Annual Meat and Skeet Official Competition Scoresheet</title>
+  
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Firebase Compat CDN Setup -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
+  
+  <!-- Google Fonts for Vintage Western/Rustic Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rye&family=Teko:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            wood: { 900: '#1a0d05', 800: '#2d1808', 700: '#42240c', 600: '#5c3312', 500: '#7a461b' },
+            parchment: { 100: '#fcf6ea', 200: '#f5e8d0', 300: '#ebd4b0', 400: '#debe8e' },
+            crimson: { 800: '#701212', 900: '#4a0808' },
+            brass: '#c59b27',
+          },
+          fontFamily: {
+            rye: ['Rye', 'serif'],
+            teko: ['Teko', 'sans-serif'],
+            body: ['Work Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #1a0d05;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 0);
+      background-size: 24px 24px;
+      color: #2d1808;
+      font-family: 'Work Sans', sans-serif;
+      -webkit-text-size-adjust: 100%;
+    }
+    .parchment-texture {
+      background-color: #f5e8d0;
+      background-image: radial-gradient(#ebd4b0 15%, transparent 16%), radial-gradient(#ebd4b0 15%, transparent 16%);
+      background-size: 60px 60px;
+      background-position: 0 0, 30px 30px;
+      box-shadow: inset 0 0 50px rgba(66, 36, 12, 0.2), 0 5px 20px rgba(0,0,0,0.8);
+    }
+    .shotgun-shell {
+      background: linear-gradient(180deg, #991b1b 0%, #7f1d1d 70%, #d97706 70%, #b45309 100%);
+    }
+    
+    /* Clicker + Fully Typable Input Layout */
+    .clicker-box {
+      display: inline-flex;
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid #78350f;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .clicker-btn {
+      background: #42240c;
+      color: #fcf6ea;
+      font-weight: bold;
+      width: 24px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.1s;
+    }
+    .clicker-btn:active {
+      background: #7a461b;
+    }
+    .clicker-input {
+      width: 36px;
+      text-align: center;
+      border: none;
+      background: transparent;
+      font-weight: bold;
+      font-size: 13px;
+      outline: none;
+      -moz-appearance: textfield;
+    }
+    .clicker-input::-webkit-inner-spin-button,
+    .clicker-input::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    @media (max-width: 640px) {
+      input, select, button {
+        font-size: 16px !important;
+      }
+    }
+    @media print {
+      body { background: none !important; color: #000 !important; padding: 0 !important; }
+      .no-print { display: none !important; }
+      .parchment-texture { background: #fff !important; box-shadow: none !important; border: 2px solid #000 !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen p-1 sm:p-4 text-wood-900">
+
+  <!-- CHAMPION CELEBRATION MODAL -->
+  <div id="championModal" class="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-parchment-100 border-4 border-brass rounded-2xl p-6 max-w-lg w-full shadow-2xl relative text-center parchment-texture">
+      <div class="absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20 rounded-full bg-crimson-800 border-4 border-brass flex items-center justify-center shadow-lg">
+        <i data-lucide="trophy" class="w-10 h-10 text-brass"></i>
+      </div>
+      <div class="mt-6">
+        <span class="font-rye text-xs text-wood-700 uppercase tracking-widest block">Official 2026 Tournament Results</span>
+        <h2 class="font-teko text-3xl sm:text-5xl font-extrabold text-crimson-800 uppercase tracking-wider mt-1 mb-2">Grand Champion Crowned!</h2>
+        <div class="bg-wood-800 text-brass border-2 border-brass rounded-xl py-3 px-4 my-3 shadow-inner">
+          <p class="text-[10px] sm:text-xs font-sans tracking-widest text-parchment-300 uppercase">2026 Meat &amp; Skeet Champion</p>
+          <p id="modalChampionName" class="font-rye text-xl sm:text-3xl text-brass mt-1 uppercase tracking-wide">--</p>
+        </div>
+        <p class="text-xs text-wood-700 font-semibold mb-5">Congratulations on mastering the clays, the brackets, and the plink combo course!</p>
+        <button onclick="closeChampionModal()" class="w-full bg-crimson-800 hover:bg-crimson-950 text-parchment-100 font-teko text-xl uppercase tracking-widest py-2 rounded-lg border border-brass shadow transition-all">
+          Close &amp; Celebrate
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN SETUP MODAL -->
+  <div id="setupModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-parchment-100 border-4 border-wood-800 rounded-xl p-6 max-w-md w-full shadow-2xl relative">
+      <div class="text-center mb-5">
+        <h2 class="font-teko text-3xl font-extrabold text-crimson-800 uppercase tracking-wider">Tournament Setup</h2>
+        <p class="text-xs text-wood-700 font-semibold">Adjust total competing shooters. Existing scores are preserved.</p>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label class="block font-teko text-lg font-bold text-wood-800 mb-1">Number of Players:</label>
+          <input type="number" id="playerCountInput" min="4" max="24" value="8" class="w-full bg-white border-2 border-wood-700 rounded p-2 text-center text-xl font-bold text-crimson-800 focus:outline-none focus:border-brass">
+        </div>
+        <button onclick="updatePlayerCount()" class="w-full bg-crimson-800 hover:bg-crimson-900 text-parchment-100 font-teko text-xl uppercase tracking-widest py-2 rounded-lg border border-brass shadow transition-all">
+          Apply Player Count
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto">
+    
+    <!-- Top Floating Toolbar / Actions -->
+    <div class="no-print bg-wood-800 border-2 border-brass/50 rounded-xl p-3 mb-4 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-parchment-100">
+      <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-full bg-crimson-800 border-2 border-brass flex items-center justify-center font-rye text-brass text-sm shadow-inner">
+            M&amp;S
+          </div>
+          <div>
+            <h1 class="font-teko text-xl uppercase tracking-wider text-brass leading-none">Scoresheet Live</h1>
+            <p class="text-[11px] text-parchment-300" id="consoleSubtitle">Loading status...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Controls -->
+      <div id="adminControls" class="flex flex-wrap items-center justify-center gap-1.5 w-full sm:w-auto hidden">
+        <button onclick="openSetupModal()" class="bg-wood-700 hover:bg-wood-600 border border-brass/30 text-parchment-100 font-semibold px-2.5 py-1.5 rounded text-xs flex items-center gap-1">
+          <i data-lucide="users" class="w-3.5 h-3.5 text-brass"></i><span>Players</span>
+        </button>
+        <button onclick="generateRoundRobin()" class="bg-wood-700 hover:bg-wood-600 border border-brass/30 text-parchment-100 font-semibold px-2.5 py-1.5 rounded text-xs flex items-center gap-1">
+          <i data-lucide="shuffle" class="w-3.5 h-3.5 text-amber-400"></i><span>Random RR</span>
+        </button>
+        <button onclick="resetScoresOnly()" class="bg-amber-700 hover:bg-amber-600 border border-brass/40 text-parchment-100 font-semibold px-2.5 py-1.5 rounded text-xs flex items-center gap-1">
+          <i data-lucide="eraser" class="w-3.5 h-3.5 text-amber-200"></i><span>Reset Scores</span>
+        </button>
+        <button onclick="resetFreshScoresheet()" class="bg-crimson-900 hover:bg-crimson-800 border border-brass/40 text-parchment-100 font-semibold px-2.5 py-1.5 rounded text-xs flex items-center gap-1">
+          <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-amber-300"></i><span>Reset All</span>
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+        <button onclick="window.print()" class="w-full sm:w-auto bg-crimson-800 hover:bg-crimson-900 text-parchment-100 font-bold px-3 py-1.5 rounded text-xs flex items-center justify-center gap-1 border border-brass/40 shadow">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i><span>Print / PDF</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="scoresheetDocument" class="parchment-texture border-2 sm:border-8 border-wood-800 rounded-lg p-2 sm:p-6 md:p-8 relative overflow-hidden">
+      
+      <div class="border border-wood-700 sm:border-2 p-2 sm:p-4 rounded relative">
+        <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-parchment-200 px-3 font-rye text-[10px] sm:text-xs tracking-widest text-wood-700 border border-wood-700 rounded-full uppercase no-print whitespace-nowrap">
+          Official Master Sheet <span id="modeBadge" class="text-crimson-800 font-bold"></span>
+        </div>
+
+        <!-- Header Section -->
+        <div class="text-center border-b-4 border-double border-wood-800 pb-3 mb-4 pt-2 relative">
+          <span class="font-rye text-wood-700 tracking-widest text-xs sm:text-base block uppercase">6<sup class="text-[9px]">TH</sup> ANNUAL</span>
+          <h1 class="font-teko text-4xl sm:text-7xl md:text-8xl font-extrabold text-crimson-800 tracking-wider leading-none my-0 uppercase">
+            MEAT <span class="text-wood-700 font-rye text-2xl sm:text-5xl align-middle">AND</span> SKEET
+          </h1>
+          <div class="bg-wood-800 text-parchment-100 font-teko text-lg sm:text-2xl tracking-widest py-0.5 px-4 inline-block rounded shadow border border-brass mt-1 uppercase">
+            LIVE LEADERBOARD
+          </div>
+        </div>
+
+        <!-- Master Table with horizontal scroll wrapper for mobile -->
+        <div class="overflow-x-auto mb-6 border-2 border-wood-800 rounded shadow-md bg-parchment-100">
+          <table class="w-full text-left border-collapse min-w-[900px]">
+            <thead>
+              <tr class="bg-wood-800 text-parchment-100 font-teko text-base sm:text-lg tracking-wider text-center border-b-2 border-wood-900">
+                <th rowspan="2" class="p-1.5 border-r border-wood-700 w-10">#</th>
+                <th rowspan="2" class="p-1.5 border-r border-wood-700 text-left" style="width: 1%; white-space: nowrap;">PLAYER NAME</th>
+                <th rowspan="2" class="p-1.5 border-r-2 border-wood-900 w-24 bg-wood-900 text-brass">CUMULATIVE PTS</th>
+                <th colspan="3" class="p-1 border-r-2 border-wood-900 bg-crimson-800">ROUND 1: BUMP</th>
+                <th colspan="4" class="p-1 border-r-2 border-wood-900 bg-wood-700">ROUND 2: ROUND ROBIN</th>
+                <th colspan="3" class="p-1 bg-crimson-900">ROUND 3: PLINK COMBO</th>
+              </tr>
+              <tr class="bg-wood-700 text-parchment-200 font-teko text-sm sm:text-base text-center border-b-2 border-wood-800">
+                <th class="p-1 border-r border-wood-600 w-28">CLAYS</th>
+                <th class="p-1 border-r border-wood-600 w-28">BUMPS</th>
+                <th class="p-1 border-r-2 border-wood-900 w-16 bg-wood-800 text-brass">TOT R1</th>
+                <th class="p-1 border-r border-wood-600 w-28">CLAYS</th>
+                <th class="p-1 border-r border-wood-600 w-20">RECORD</th>
+                <th class="p-1 border-r border-wood-600 w-16">MATCH PTS</th>
+                <th class="p-1 border-r-2 border-wood-900 w-16 bg-wood-800 text-brass">TOT R2</th>
+                <th class="p-1 border-r border-wood-600 w-36">TIME (M:S)</th>
+                <th class="p-1 border-r border-wood-600 w-28 text-red-300">PENALTIES</th>
+                <th class="p-1 w-16 bg-wood-800 text-brass">R3 PTS</th>
+              </tr>
+            </thead>
+            <tbody id="scoresheetBody" class="divide-y divide-wood-400 font-body text-xs sm:text-sm"></tbody>
+          </table>
+        </div>
+
+        <!-- Round Robin Brackets Container -->
+        <div class="border-2 sm:border-4 border-wood-800 bg-parchment-200 rounded-lg p-3 sm:p-5 mb-6 shadow-inner relative">
+          <h2 class="font-teko text-2xl sm:text-3xl font-extrabold text-crimson-800 tracking-wider text-center uppercase mb-3">Round Robin Matchups</h2>
+          <div id="roundRobinContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+        </div>
+
+        <!-- Elimination Bracket Section -->
+        <div class="border-2 sm:border-4 border-wood-800 bg-parchment-200 rounded-lg p-3 sm:p-5 mb-4 shadow-inner relative">
+          <div class="flex flex-col sm:flex-row items-center justify-between mb-4 gap-2">
+            <h2 class="font-teko text-2xl sm:text-3xl font-extrabold text-crimson-800 tracking-wider text-center sm:text-left uppercase">Round 4: Top 6 Elimination Bracket</h2>
+            <div id="autoSeedBtnContainer" class="hidden">
+              <button onclick="autoSeedBracket()" class="bg-wood-800 hover:bg-wood-700 text-brass font-teko text-lg uppercase tracking-wider px-4 py-1.5 rounded-lg border-2 border-brass shadow flex items-center gap-1.5 transition-all">
+                <i data-lucide="trophy" class="w-4 h-4 text-brass"></i><span>Auto-Seed Final Six</span>
+              </button>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 items-center relative" id="bracketContainer"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyChVSqtH5vVDBNJNx3habd0QRsoSv_RGbQ",
+      authDomain: "meat-and-skeet.firebaseapp.com",
+      databaseURL: "https://meat-and-skeet-default-rtdb.firebaseio.com",
+      projectId: "meat-and-skeet",
+      storageBucket: "meat-and-skeet.firebasestorage.app",
+      messagingSenderId: "300902032169",
+      appId: "1:300902032169:web:c02424f391d63414184d38",
+      measurementId: "G-H6FM3XCBWR"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    firebase.analytics();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const isAdmin = urlParams.get('admin') === 'true';
+
+    let players = [];
+    let rrMatches = [];
+    let bracket = { w1: '', w2: '', w3: '', w4: '', s1: '', s2: '', s3: '', s4: '', s5: '', s6: '', champion: '' };
+
+    document.getElementById('consoleSubtitle').innerText = isAdmin ? "Admin Mode Active" : "Spectator Live View";
+    document.getElementById('modeBadge').innerText = isAdmin ? "[ADMIN]" : "[SPECTATOR]";
+    if (isAdmin) {
+      document.getElementById('adminControls').classList.remove('hidden');
+      document.getElementById('autoSeedBtnContainer').classList.remove('hidden');
+    }
+
+    db.ref('tournament').on('value', (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        players = data.players || [];
+        rrMatches = data.rrMatches || [];
+        bracket = data.bracket || bracket;
+        renderMasterTable();
+        renderRoundRobinCards();
+        renderBracket();
+      } else if (isAdmin) {
+        initializeDefaultTournament(8);
+      }
+    });
+
+    function saveDataToCloud() {
+      if (!isAdmin) return;
+      db.ref('tournament').set({ players, rrMatches, bracket });
+    }
+
+    function openSetupModal() {
+      if (isAdmin) {
+        document.getElementById('playerCountInput').value = players.length || 8;
+        document.getElementById('setupModal').classList.remove('hidden');
+      }
+    }
+
+    function initializeDefaultTournament(count) {
+      if (!isAdmin) return;
+      players = [];
+      for (let i = 1; i <= count; i++) {
+        players.push({ id: i, name: `Shooter ${i}`, r1_clays: 0, r1_bump: 0, r2_clays: 0, r2_wins: 0, r2_ties: 0, r2_losses: 0, r2_points: 0, r3_time: '00:00', r3_penalties: 0, r3_points: 0 });
+      }
+      bracket = { w1: '', w2: '', w3: '', w4: '', s1: '', s2: '', s3: '', s4: '', s5: '', s6: '', champion: '' };
+      document.getElementById('setupModal').classList.add('hidden');
+      generateRoundRobin();
+    }
+
+    function resetScoresOnly() {
+      if (!isAdmin) return;
+      if (confirm("Reset all scores, times, and brackets to zero? Player names will be kept.")) {
+        players.forEach(p => {
+          p.r1_clays = 0;
+          p.r1_bump = 0;
+          p.r2_clays = 0;
+          p.r2_wins = 0;
+          p.r2_ties = 0;
+          p.r2_losses = 0;
+          p.r2_points = 0;
+          p.r3_time = '00:00';
+          p.r3_penalties = 0;
+          p.r3_points = 0;
+        });
+        rrMatches.forEach(m => {
+          m.p1_clays = 0;
+          m.p2_clays = 0;
+          m.result = null;
+        });
+        bracket = { w1: '', w2: '', w3: '', w4: '', s1: '', s2: '', s3: '', s4: '', s5: '', s6: '', champion: '' };
+        saveDataToCloud();
+      }
+    }
+
+    function resetFreshScoresheet() {
+      if (!isAdmin) return;
+      if (confirm("Reset all scores, brackets, and names back to a fresh sheet?")) {
+        initializeDefaultTournament(players.length || 8);
+      }
+    }
+
+    function updatePlayerCount() {
+      if (!isAdmin) return;
+      const targetCount = parseInt(document.getElementById('playerCountInput').value) || 8;
+      if (targetCount < players.length) {
+        players = players.slice(0, targetCount);
+      } else if (targetCount > players.length) {
+        for (let i = players.length + 1; i <= targetCount; i++) {
+          players.push({ id: i, name: `Shooter ${i}`, r1_clays: 0, r1_bump: 0, r2_clays: 0, r2_wins: 0, r2_ties: 0, r2_losses: 0, r2_points: 0, r3_time: '00:00', r3_penalties: 0, r3_points: 0 });
+        }
+      }
+      document.getElementById('setupModal').classList.add('hidden');
+      generateRoundRobin();
+    }
+
+    function parseTimeToSeconds(timeStr) {
+      if (!timeStr || !timeStr.includes(':')) {
+        const val = parseFloat(timeStr);
+        return isNaN(val) ? 999999 : val;
+      }
+      const parts = timeStr.split(':');
+      return (parseInt(parts[0]) || 0) * 60 + (parseFloat(parts[1]) || 0);
+    }
+
+    function calculateRound3Points() {
+      const scored = players.map(p => ({ id: p.id, totalSec: parseTimeToSeconds(p.r3_time) + (p.r3_penalties || 0), hasScore: p.r3_time && p.r3_time !== '00:00' }));
+      scored.sort((a, b) => (a.hasScore === b.hasScore) ? a.totalSec - b.totalSec : (a.hasScore ? -1 : 1));
+      scored.forEach((sp, idx) => {
+        const p = players.find(x => x.id === sp.id);
+        if (p) p.r3_points = sp.hasScore ? Math.max(10 - idx, 0) : 0;
+      });
+    }
+
+    function changeScore(id, field, delta) {
+      if (!isAdmin) return;
+      const p = players.find(x => x.id === id);
+      if (p) {
+        p[field] = Math.max(0, (p[field] || 0) + delta);
+        saveDataToCloud();
+      }
+    }
+
+    function setScoreDirect(id, field, val) {
+      if (!isAdmin) return;
+      const p = players.find(x => x.id === id);
+      if (p) {
+        p[field] = Math.max(0, parseInt(val) || 0);
+        saveDataToCloud();
+      }
+    }
+
+    function changeTime(id, type, delta) {
+      if (!isAdmin) return;
+      const p = players.find(x => x.id === id);
+      if (p) {
+        let [m, s] = (p.r3_time || '00:00').split(':').map(val => parseInt(val) || 0);
+        if (type === 'min') {
+          m = Math.max(0, Math.min(59, m + delta));
+        } else {
+          s = Math.max(0, Math.min(59, s + delta));
+        }
+        p.r3_time = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        saveDataToCloud();
+      }
+    }
+
+    function setTimeDirect(id, type, val) {
+      if (!isAdmin) return;
+      const p = players.find(x => x.id === id);
+      if (p) {
+        let [m, s] = (p.r3_time || '00:00').split(':').map(x => parseInt(x) || 0);
+        let num = Math.max(0, Math.min(59, parseInt(val) || 0));
+        if (type === 'min') m = num;
+        else s = num;
+        p.r3_time = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        saveDataToCloud();
+      }
+    }
+
+    function changeRRMatchClays(matchId, field, delta) {
+      if (!isAdmin) return;
+      const m = rrMatches.find(x => x.id === matchId);
+      if (m) {
+        m[field] = Math.max(0, (m[field] || 0) + delta);
+        recalculateRoundRobinStats();
+      }
+    }
+
+    function setRRMatchClaysDirect(matchId, field, val) {
+      if (!isAdmin) return;
+      const m = rrMatches.find(x => x.id === matchId);
+      if (m) {
+        m[field] = Math.max(0, parseInt(val) || 0);
+        recalculateRoundRobinStats();
+      }
+    }
+
+    // Auto-adjust width of name input as text is typed
+    function autoResizeInput(input) {
+      input.style.width = '0px';
+      input.style.width = (Math.max(input.scrollWidth + 12, 120)) + 'px';
+    }
+
+    function renderMasterTable() {
+      calculateRound3Points();
+      const tbody = document.getElementById('scoresheetBody');
+      tbody.innerHTML = '';
+
+      players.forEach((p, idx) => {
+        const totalR1 = (p.r1_clays || 0) + ((p.r1_bump || 0) * 3);
+        const totalR2 = (p.r2_clays || 0) + (p.r2_points || 0);
+        const cumPts = totalR1 + totalR2 + (p.r3_points || 0);
+        const [mMin, mSec] = (p.r3_time || '00:00').split(':');
+
+        const tr = document.createElement('tr');
+        tr.className = idx % 2 === 0 ? 'bg-parchment-100' : 'bg-parchment-200/60';
+        tr.innerHTML = `
+          <td class="p-1.5 text-center font-bold text-wood-800 border-r border-wood-300">${p.id}</td>
+          <td class="p-1 border-r border-wood-300" style="white-space: nowrap;">
+            <input type="text" value="${p.name}" ${!isAdmin ? 'readonly' : ''} oninput="autoResizeInput(this)" onchange="updatePlayerName(${p.id}, this.value)" class="name-input bg-transparent px-2 py-1 font-semibold text-wood-900 border-b border-transparent focus:outline-none focus:border-wood-800">
+          </td>
+          <td class="p-1.5 text-center font-teko text-xl font-bold bg-amber-100/60 text-crimson-800 border-r-2 border-wood-800">${cumPts}</td>
+          
+          <!-- Round 1 Clays Clicker & Typable -->
+          <td class="p-1 border-r border-wood-300 text-center">
+            <div class="clicker-box mx-auto">
+              ${isAdmin ? `<button type="button" onclick="changeScore(${p.id}, 'r1_clays', -1)" class="clicker-btn">-</button>` : ''}
+              <input type="number" min="0" value="${p.r1_clays}" ${!isAdmin ? 'readonly' : ''} oninput="setScoreDirect(${p.id}, 'r1_clays', this.value)" class="clicker-input">
+              ${isAdmin ? `<button type="button" onclick="changeScore(${p.id}, 'r1_clays', 1)" class="clicker-btn">+</button>` : ''}
+            </div>
+          </td>
+          <!-- Round 1 Bumps Clicker & Typable -->
+          <td class="p-1 border-r border-wood-300 text-center">
+            <div class="clicker-box mx-auto">
+              ${isAdmin ? `<button type="button" onclick="changeScore(${p.id}, 'r1_bump', -1)" class="clicker-btn">-</button>` : ''}
+              <input type="number" min="0" value="${p.r1_bump}" ${!isAdmin ? 'readonly' : ''} oninput="setScoreDirect(${p.id}, 'r1_bump', this.value)" class="clicker-input">
+              ${isAdmin ? `<button type="button" onclick="changeScore(${p.id}, 'r1_bump', 1)" class="clicker-btn">+</button>` : ''}
+            </div>
+          </td>
+          <td class="p-1.5 text-center font-bold text-brass bg-wood-800 border-r-2 border-wood-800">${totalR1}</td>
+          
+          <!-- Round 2 Clays -->
+          <td class="p-1 border-r border-wood-300 text-center">
+            <div class="clicker-box mx-auto" style="background: #e5e7eb;">
+              <input type="text" readonly value="${p.r2_clays}" class="clicker-input" style="width: 48px;">
+            </div>
+          </td>
+          <td class="p-1 border-r border-wood-300 text-center text-[11px] font-semibold text-wood-800">${p.r2_wins}W-${p.r2_ties}T-${p.r2_losses}L</td>
+          <td class="p-1 border-r border-wood-300 text-center font-bold text-crimson-800">${p.r2_points}</td>
+          <td class="p-1.5 text-center font-bold text-brass bg-wood-800 border-r-2 border-wood-800">${totalR2}</td>
+          
+          <!-- Round 3 Time (M:S) Clickers & Typable -->
+          <td class="p-1 border-r border-wood-300 text-center">
+            <div class="inline-flex items-center gap-1">
+              <div class="clicker-box">
+                ${isAdmin ? `<button type="button" onclick="changeTime(${p.id}, 'min', -1)" class="clicker-btn">-</button>` : ''}
+                <input type="number" min="0" max="59" value="${mMin || 0}" ${!isAdmin ? 'readonly' : ''} oninput="setTimeDirect(${p.id}, 'min', this.value)" class="clicker-input" style="width: 28px;">
+                ${isAdmin ? `<button type="button" onclick="changeTime(${p.id}, 'min', 1)" class="clicker-btn">+</button>` : ''}
+              </div>
+              <span class="font-bold text-wood-800">:</span>
+              <div class="clicker-box">
+                ${isAdmin ? `<button type="button" onclick="changeTime(${p.id}, 'sec', -1)" class="clicker-btn">-</button>` : ''}
+                <input type="number" min="0" max="59" value="${mSec || 0}" ${!isAdmin ? 'readonly' : ''} oninput="setTimeDirect(${p.id}, 'sec', this.value)" class="clicker-input" style="width: 28px;">
+                ${isAdmin ? `<button type="button" onclick="changeTime(${p.id}, 'sec', 1)" class="clicker-btn">+</button>` : ''}
+              </div>
+            </div>
+          </td>
+          <!-- Round 3 Penalties Clicker & Typable -->
+          <td class="p-1 border-r border-wood-300 text-center">
+            <div class="clicker-box mx-auto">
+              ${isAdmin ? `<button type="button" onclick="changeScore(${p.id}, 'r3_penalties', -1)" class="clicker-btn">-</button>` : ''}
+              <input type="number" min="0" value="${p.r3_penalties}" ${!isAdmin ? 'readonly' : ''} oninput="setScoreDirect(${p.id}, 'r3_penalties', this.value)" class="clicker-input">
+              ${isAdmin ? `<button type="button" onclick="changeScore(${p.id}, 'r3_penalties', 1)" class="clicker-btn">+</button>` : ''}
+            </div>
+          </td>
+          <td class="p-1.5 text-center font-bold text-crimson-800 bg-amber-100/70">${p.r3_points}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Apply initial auto-resize to all name inputs after rendering
+      document.querySelectorAll('.name-input').forEach(input => autoResizeInput(input));
+    }
+
+    function updatePlayerName(id, val) { 
+      if (isAdmin) { 
+        players.find(x => x.id === id).name = val; 
+        saveDataToCloud(); 
+      } 
+    }
+
+    function generateRoundRobin() {
+      if (!isAdmin) return;
+      rrMatches = [];
+      let n = players.length, ids = players.map(p => p.id), counts = {};
+      ids.forEach(id => counts[id] = 0);
+      let pairs = [];
+      for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) pairs.push([ids[i], ids[j]]);
+      pairs.sort(() => Math.random() - 0.5);
+      pairs.forEach(pair => {
+        if (counts[pair[0]] < 3 && counts[pair[1]] < 3) {
+          counts[pair[0]]++; counts[pair[1]]++;
+          rrMatches.push({ id: rrMatches.length + 1, p1: pair[0], p2: pair[1], p1_clays: 0, p2_clays: 0, result: null });
+        }
+      });
+      recalculateRoundRobinStats();
+    }
+
+    function renderRoundRobinCards() {
+      const container = document.getElementById('roundRobinContainer');
+      container.innerHTML = '';
+      rrMatches.forEach(m => {
+        const p1 = players.find(x => x.id === m.p1) || { name: 'Player 1' };
+        const p2 = players.find(x => x.id === m.p2) || { name: 'Player 2' };
+        const card = document.createElement('div');
+        card.className = "border-2 border-wood-800 bg-parchment-100 rounded-lg p-2.5 shadow relative";
+        card.innerHTML = `
+          <div class="flex items-center justify-between border-b border-wood-400 pb-1 mb-2 font-teko text-base font-bold text-wood-800 uppercase">
+            <span>MATCH ${m.id}</span>
+            <span class="text-[11px] text-wood-700 tracking-wider">Clays Hit</span>
+          </div>
+          <div class="space-y-1.5 mb-2">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-bold truncate max-w-[120px]">${p1.name}</span>
+              <div class="clicker-box">
+                ${isAdmin ? `<button type="button" onclick="changeRRMatchClays(${m.id}, 'p1_clays', -1)" class="clicker-btn">-</button>` : ''}
+                <input type="number" min="0" value="${m.p1_clays || 0}" ${!isAdmin ? 'readonly' : ''} oninput="setRRMatchClaysDirect(${m.id}, 'p1_clays', this.value)" class="clicker-input">
+                ${isAdmin ? `<button type="button" onclick="changeRRMatchClays(${m.id}, 'p1_clays', 1)" class="clicker-btn">+</button>` : ''}
+              </div>
+            </div>
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-bold truncate max-w-[120px]">${p2.name}</span>
+              <div class="clicker-box">
+                ${isAdmin ? `<button type="button" onclick="changeRRMatchClays(${m.id}, 'p2_clays', -1)" class="clicker-btn">-</button>` : ''}
+                <input type="number" min="0" value="${m.p2_clays || 0}" ${!isAdmin ? 'readonly' : ''} oninput="setRRMatchClaysDirect(${m.id}, 'p2_clays', this.value)" class="clicker-input">
+                ${isAdmin ? `<button type="button" onclick="changeRRMatchClays(${m.id}, 'p2_clays', 1)" class="clicker-btn">+</button>` : ''}
+              </div>
+            </div>
+          </div>
+          ${isAdmin ? `<div class="flex gap-1 pt-2 border-t border-wood-300">
+            <button type="button" onclick="setMatchResult(${m.id}, 'p1')" class="flex-1 py-1 px-1 rounded text-[10px] font-bold truncate ${m.result === 'p1' ? 'bg-crimson-800 text-white' : 'bg-wood-700 text-amber-200'}" title="${p1.name} Win">${p1.name} Win</button>
+            <button type="button" onclick="setMatchResult(${m.id}, 'tie')" class="py-1 px-2 rounded text-[10px] font-bold ${m.result === 'tie' ? 'bg-amber-600 text-white' : 'bg-wood-600 text-amber-200'}">Tie</button>
+            <button type="button" onclick="setMatchResult(${m.id}, 'p2')" class="flex-1 py-1 px-1 rounded text-[10px] font-bold truncate ${m.result === 'p2' ? 'bg-crimson-800 text-white' : 'bg-wood-700 text-amber-200'}" title="${p2.name} Win">${p2.name} Win</button>
+          </div>` : ''}
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function setMatchResult(id, res) {
+      if (!isAdmin) return;
+      const m = rrMatches.find(x => x.id === id);
+      m.result = m.result === res ? null : res;
+      recalculateRoundRobinStats();
+    }
+
+    function recalculateRoundRobinStats() {
+      players.forEach(p => { p.r2_clays = 0; p.r2_wins = 0; p.r2_ties = 0; p.r2_losses = 0; p.r2_points = 0; });
+      rrMatches.forEach(m => {
+        const p1 = players.find(x => x.id === m.p1), p2 = players.find(x => x.id === m.p2);
+        if (p1 && p2) {
+          p1.r2_clays += (m.p1_clays || 0);
+          p2.r2_clays += (m.p2_clays || 0);
+          if (m.result === 'p1') { p1.r2_wins++; p1.r2_points += 5; p2.r2_losses++; }
+          else if (m.result === 'p2') { p2.r2_wins++; p2.r2_points += 5; p1.r2_losses++; }
+          else if (m.result === 'tie') { p1.r2_ties++; p1.r2_points += 2; p2.r2_ties++; p2.r2_points += 2; }
+        }
+      });
+      saveDataToCloud();
+    }
+
+    function autoSeedBracket() {
+      if (!isAdmin) return;
+      const ranked = [...players].sort((a, b) => {
+        const totA = (a.r1_clays + a.r1_bump * 3) + (a.r2_clays + a.r2_points) + a.r3_points;
+        const totB = (b.r1_clays + b.r1_bump * 3) + (b.r2_clays + b.r2_points) + b.r3_points;
+        return totB - totA;
+      });
+      bracket.s1 = ranked[0] ? `${ranked[0].name} (${ranked[0].id})` : '';
+      bracket.s2 = ranked[1] ? `${ranked[1].name} (${ranked[1].id})` : '';
+      bracket.s3 = ranked[2] ? `${ranked[2].name} (${ranked[2].id})` : '';
+      bracket.s4 = ranked[3] ? `${ranked[3].name} (${ranked[3].id})` : '';
+      bracket.s5 = ranked[4] ? `${ranked[4].name} (${ranked[4].id})` : '';
+      bracket.s6 = ranked[5] ? `${ranked[5].name} (${ranked[5].id})` : '';
+      saveDataToCloud();
+    }
+
+    function renderBracket() {
+      const container = document.getElementById('bracketContainer');
+      container.innerHTML = `
+        <div class="space-y-6">
+          <div class="border-2 border-wood-800 bg-parchment-100 rounded p-2.5 shadow">
+            <span class="text-xs font-bold text-crimson-800 uppercase">Match 1 (Seed 4 vs 5)</span>
+            <div class="mt-1"><input type="text" readonly value="${bracket.s4 || ''}" class="w-full text-xs p-1 bg-white border rounded mb-1"></div>
+            <div><input type="text" readonly value="${bracket.s5 || ''}" class="w-full text-xs p-1 bg-white border rounded"></div>
+            ${isAdmin ? `
+              <div class="mt-2 flex items-center gap-1">
+                <select id="select_w1" class="w-full text-xs p-1 bg-white border border-wood-400 rounded">
+                  <option value="">-- Select Winner --</option>
+                  <option value="${bracket.s4}">${bracket.s4 || 'Seed 4'}</option>
+                  <option value="${bracket.s5}">${bracket.s5 || 'Seed 5'}</option>
+                </select>
+                <button type="button" onclick="advance('w1', document.getElementById('select_w1').value)" class="bg-wood-700 text-amber-300 text-xs px-2.5 py-1 rounded font-bold">Set</button>
+              </div>
+            ` : ''}
+          </div>
+
+          <div class="border-2 border-wood-800 bg-parchment-100 rounded p-2.5 shadow">
+            <span class="text-xs font-bold text-crimson-800 uppercase">Match 2 (Seed 3 vs 6)</span>
+            <div class="mt-1"><input type="text" readonly value="${bracket.s3 || ''}" class="w-full text-xs p-1 bg-white border rounded mb-1"></div>
+            <div><input type="text" readonly value="${bracket.s6 || ''}" class="w-full text-xs p-1 bg-white border rounded"></div>
+            ${isAdmin ? `
+              <div class="mt-2 flex items-center gap-1">
+                <select id="select_w2" class="w-full text-xs p-1 bg-white border border-wood-400 rounded">
+                  <option value="">-- Select Winner --</option>
+                  <option value="${bracket.s3}">${bracket.s3 || 'Seed 3'}</option>
+                  <option value="${bracket.s6}">${bracket.s6 || 'Seed 6'}</option>
+                </select>
+                <button type="button" onclick="advance('w2', document.getElementById('select_w2').value)" class="bg-wood-700 text-amber-300 text-xs px-2.5 py-1 rounded font-bold">Set</button>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <div class="border-2 border-wood-800 bg-parchment-100 rounded p-2.5 shadow">
+            <span class="text-xs font-bold text-wood-800 uppercase">Semifinal 1 (Seed 1 vs W1)</span>
+            <input type="text" readonly value="${bracket.s1 || ''}" class="w-full text-xs p-1 bg-white border rounded mb-1">
+            <input type="text" readonly value="${bracket.w1 || ''}" class="w-full text-xs p-1 bg-amber-100 border rounded">
+            ${isAdmin ? `
+              <div class="mt-2 flex items-center gap-1">
+                <select id="select_w3" class="w-full text-xs p-1 bg-white border border-wood-400 rounded">
+                  <option value="">-- Select Winner --</option>
+                  <option value="${bracket.s1}">${bracket.s1 || 'Seed 1'}</option>
+                  <option value="${bracket.w1}">${bracket.w1 || 'Winner M1'}</option>
+                </select>
+                <button type="button" onclick="advance('w3', document.getElementById('select_w3').value)" class="bg-wood-700 text-amber-300 text-xs px-2.5 py-1 rounded font-bold">Set</button>
+              </div>
+            ` : ''}
+          </div>
+
+          <div class="border-2 border-wood-800 bg-parchment-100 rounded p-2.5 shadow">
+            <span class="text-xs font-bold text-wood-800 uppercase">Semifinal 2 (W2 vs Seed 2)</span>
+            <input type="text" readonly value="${bracket.w2 || ''}" class="w-full text-xs p-1 bg-amber-100 border rounded mb-1">
+            <input type="text" readonly value="${bracket.s2 || ''}" class="w-full text-xs p-1 bg-white border rounded">
+            ${isAdmin ? `
+              <div class="mt-2 flex items-center gap-1">
+                <select id="select_w4" class="w-full text-xs p-1 bg-white border border-wood-400 rounded">
+                  <option value="">-- Select Winner --</option>
+                  <option value="${bracket.w2}">${bracket.w2 || 'Winner M2'}</option>
+                  <option value="${bracket.s2}">${bracket.s2 || 'Seed 2'}</option>
+                </select>
+                <button type="button" onclick="advance('w4', document.getElementById('select_w4').value)" class="bg-wood-700 text-amber-300 text-xs px-2.5 py-1 rounded font-bold">Set</button>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <div class="border-2 border-brass bg-parchment-100 rounded p-2.5 shadow-lg">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-bold text-crimson-800 uppercase">Championship Match</span>
+              <i data-lucide="crown" class="w-3.5 h-3.5 text-brass"></i>
+            </div>
+            <input type="text" readonly value="${bracket.w3 || ''}" class="w-full text-xs p-1 bg-amber-100 border rounded mb-1">
+            <input type="text" readonly value="${bracket.w4 || ''}" class="w-full text-xs p-1 bg-amber-100 border rounded">
+            ${isAdmin ? `
+              <div class="mt-2 flex items-center gap-1">
+                <select id="select_champion" class="w-full text-xs p-1 bg-white border border-brass rounded font-bold">
+                  <option value="">-- Crown Champion --</option>
+                  <option value="${bracket.w3}">${bracket.w3 || 'Winner SF1'}</option>
+                  <option value="${bracket.w4}">${bracket.w4 || 'Winner SF2'}</option>
+                </select>
+                <button type="button" onclick="advanceChampion(document.getElementById('select_champion').value)" class="bg-brass hover:bg-yellow-600 text-wood-900 text-xs px-2.5 py-1 rounded font-bold">Crown</button>
+              </div>
+            ` : ''}
+          </div>
+
+          <div class="border-2 border-wood-800 bg-wood-800 text-parchment-100 rounded p-2.5 text-center shadow">
+            <span class="font-teko text-brass uppercase block tracking-wider text-sm">Tournament Champion</span>
+            <input type="text" readonly value="${bracket.champion || ''}" class="w-full text-center bg-wood-900 text-brass font-rye text-xs sm:text-sm py-1.5 rounded mt-1 uppercase">
+          </div>
+        </div>
+      `;
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function advance(key, val) {
+      if (!isAdmin || !val) return;
+      bracket[key] = val;
+      saveDataToCloud();
+    }
+
+    function advanceChampion(val) {
+      if (!isAdmin || !val) return;
+      bracket.champion = val;
+      saveDataToCloud();
+      showChampionModal(val);
+    }
+
+    function showChampionModal(champName) {
+      document.getElementById('modalChampionName').innerText = champName;
+      document.getElementById('championModal').classList.remove('hidden');
+    }
+
+    function closeChampionModal() {
+      document.getElementById('championModal').classList.add('hidden');
+    }
+
+    window.onload = function() {
+      if (window.lucide) lucide.createIcons();
+    };
+  </script>
+</body>
+</html>
